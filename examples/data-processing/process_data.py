@@ -16,9 +16,15 @@ stop = datetime(year=2030, month=1, day=1, hour=0, tzinfo=timezone.utc)
 pw = {"default": "password"}
 
 # setup filesystem (local/S3), load DBC files and list log files for processing
+
 fs = setup_fs(s3=False, key="", secret="", endpoint="", region="", passwords=pw)
 db_list = load_dbc_files(dbc_paths)
+print(db_list)
+#db list is the dbc (dictionary) values that you need to translate the log with
+print("ok")
 log_files = canedge_browser.get_log_files(fs, devices, start_date=start, stop_date=stop, passwords=pw)
+# log files are based on what device types you chose, log of that device (from a certain time period)
+print(log_files)
 print(f"Found a total of {len(log_files)} log files")
 
 # --------------------------------------------
@@ -26,6 +32,7 @@ print(f"Found a total of {len(log_files)} log files")
 proc = ProcessData(fs, db_list, signals=[])
 df_phys_all = []
 
+#grabs a combination of both log_files, ending at 198, need to check car to see what kinda files we can pull in 
 for log_file in log_files:
     df_raw, device_id = proc.get_raw_data(log_file, passwords=pw)
     df_phys = proc.extract_phys(df_raw)
@@ -46,6 +53,9 @@ df_phys_all = pd.concat(df_phys_all,ignore_index=False).sort_index()
 
 # --------------------------------------------
 # example: resample and restructure data (parameters in columns)
+
+#grabs average of each second to put into .csv file (i calculated it to double check)
+#everything is correct except the time is off, think its just a time zone difference
 df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
 df_phys_join.to_csv("output_joined.csv")
 print("\nConcatenated DBC decoded data:\n", df_phys_join)
