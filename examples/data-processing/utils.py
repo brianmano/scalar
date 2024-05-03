@@ -14,6 +14,7 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
 
         if "amazonaws" in endpoint:
             fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
+            print("yes")
         elif cert != "":
             fs = s3fs.S3FileSystem(
                 key=key,
@@ -102,7 +103,8 @@ def restructure_data(df_phys, res, ffill=False):
     import pandas as pd
 
     if not df_phys.empty and res != "":
-        df_phys = df_phys.pivot_table(values="Physical Value", index=pd.Grouper(freq=res), columns="Signal")
+        df_phys = df_phys.pivot_table(values="Physical Value", index=pd.Grouper(freq=res.lower()), columns="Signal")
+
 
     if ffill:
         df_phys = df_phys.ffill()
@@ -147,7 +149,6 @@ def add_custom_sig(df_phys, signal1, signal2, function, new_signal):
         print(f"Warning: Custom signal {new_signal} not created\n")
 
     return df_phys
-
 
 # -----------------------------------------------
 class ProcessData:
@@ -230,7 +231,7 @@ class ProcessData:
         with self.fs.open(log_file, "rb") as handle:
             mdf_file = mdf_iter.MdfFile(handle, passwords=passwords)
             device_id = self.get_device_id(mdf_file)
-            print(device_id, "letsgo")
+            #print(device_id, "test")
 
             if lin:
                 df_raw_lin = mdf_file.get_data_frame_lin()
@@ -243,8 +244,10 @@ class ProcessData:
         return df_raw, device_id
 
     def get_device_id(self, mdf_file):
-        print("okokok")
-        return mdf_file.get_metadata()["HDcomment.Device Information.serial number"]["value_raw"]
+        try:
+            return mdf_file.get_metadata()["HDcomment.Device Information.serial number"]["value_raw"]
+        except KeyError:
+            return None
 
     def print_log_summary(self, device_id, log_file, df_phys):
         """Print summary information for each log file"""
