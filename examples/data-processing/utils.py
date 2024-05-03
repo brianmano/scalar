@@ -14,8 +14,6 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
 
         if "amazonaws" in endpoint:
             fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
-            print("yes") 
-            print("yes")
         elif cert != "":
             fs = s3fs.S3FileSystem(
                 key=key,
@@ -32,7 +30,6 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
             )
 
     else:
-        print("sure")
         from pathlib import Path
         import canedge_browser
 
@@ -69,7 +66,6 @@ def list_log_files(fs, devices, start_times, verbose=True, passwords={}):
     if len(start_times):
         for idx, device in enumerate(devices):
             start = start_times[idx]
-            print("sure2")
             log_files_device = canedge_browser.get_log_files(fs, [device], start_date=start, passwords=passwords)
             log_files.extend(log_files_device)
 
