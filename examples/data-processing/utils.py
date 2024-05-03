@@ -14,6 +14,8 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
 
         if "amazonaws" in endpoint:
             fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
+            print("yes") 
+            print("yes")
         elif cert != "":
             fs = s3fs.S3FileSystem(
                 key=key,
@@ -30,6 +32,7 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
             )
 
     else:
+        print("sure")
         from pathlib import Path
         import canedge_browser
 
@@ -48,6 +51,7 @@ def load_dbc_files(dbc_paths):
     db_list = []
     for dbc in dbc_paths:
         db = can_decoder.load_dbc(Path(__file__).parent / dbc)
+        #print(db)
         db_list.append(db)
 
     return db_list
@@ -65,6 +69,7 @@ def list_log_files(fs, devices, start_times, verbose=True, passwords={}):
     if len(start_times):
         for idx, device in enumerate(devices):
             start = start_times[idx]
+            print("sure2")
             log_files_device = canedge_browser.get_log_files(fs, [device], start_date=start, passwords=passwords)
             log_files.extend(log_files_device)
 
@@ -229,6 +234,7 @@ class ProcessData:
         with self.fs.open(log_file, "rb") as handle:
             mdf_file = mdf_iter.MdfFile(handle, passwords=passwords)
             device_id = self.get_device_id(mdf_file)
+            print(device_id, "letsgo")
 
             if lin:
                 df_raw_lin = mdf_file.get_data_frame_lin()
@@ -241,6 +247,7 @@ class ProcessData:
         return df_raw, device_id
 
     def get_device_id(self, mdf_file):
+        print("okokok")
         return mdf_file.get_metadata()["HDcomment.Device Information.serial number"]["value_raw"]
 
     def print_log_summary(self, device_id, log_file, df_phys):
