@@ -18,7 +18,7 @@ pw = {"default": "password"} #what is this
 
 # setup filesystem (local/S3), load DBC files and list log files for processing
 
-fs = setup_fs(s3=True, key="AKIAZQ3DN62NOBB44GP3", secret="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", endpoint="http://s3.us-east-2.amazonaws.com", region="us-east-2", passwords=pw)
+
 print(fs)
 db_list = load_dbc_files(dbc_paths)
 print(db_list)
