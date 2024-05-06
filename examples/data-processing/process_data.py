@@ -1,3 +1,6 @@
+#Note: only grabs data while connected to hotspot (if in dead zone no data from chip is put into log)
+
+
 import mdf_iter
 import canedge_browser
 

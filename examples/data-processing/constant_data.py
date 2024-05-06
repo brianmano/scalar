@@ -3,7 +3,7 @@ import canedge_browser
 
 import pandas as pd
 from datetime import datetime, timezone
-from utils import setup_fs, load_dbc_files, restructure_data, add_custom_sig, ProcessData, test_signal_threshold
+from utils import setup_fs, load_dbc_files, restructure_data, add_custom_sig, ProcessData, test_signal_threshold, list_mf4_files
 from pytz import timezone
 import time
 import botocore
@@ -24,56 +24,62 @@ endpoint = 'http://s3.us-east-2.amazonaws.com'
 region = 'us-east-2'
 bucket_name = 'honda-civic-bucket'
 
-def list_mf4_files(key, secretkey, endpoint, region, bucket_name):
-    # Initialize the S3 client
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=key,
-        aws_secret_access_key=secretkey,
-        endpoint_url=endpoint,
-        region_name=region
-    )
+# Maintain a list of processed log files
+processed_files = set()
 
-    # List all objects in the bucket
-    response = s3.list_objects_v2(Bucket=bucket_name)
 
-    # Extract the file names of all MF4 files
-    mf4_files = []
-    for obj in response.get('Contents', []):
-        if obj['Key'].endswith('.MF4'):
-            mf4_files.append(bucket_name + '/' + obj['Key'])
-
-    return mf4_files
 
 
 db_list = load_dbc_files(dbc_paths)
 fs = setup_fs(s3=True, key=key, secret=secretkey, endpoint=endpoint, region=region, passwords=pw)
 
 while True:
-
-    #log_files = canedge_browser.get_log_files(fs, "honda-civic-bucket/B535198E", start_date=start, stop_date=stop, passwords=pw)
+    loop_start_time = time.time()  # Record the start time of the loop
 
     log_files = list_mf4_files(key, secretkey, endpoint, region, bucket_name)
 
-    print(log_files)
+    # Filter out already processed files
+    new_files = [log_file for log_file in log_files if log_file not in processed_files]
 
-    # for file in log_files:
-    #     print(file)
-    # print(f"Found a total of {len(log_files)} log files")
+    if new_files:
+        print("New log files found:", new_files)
 
-    proc = ProcessData(fs, db_list, signals=[])
-    df_phys_all = []
-    for log_file in log_files:
-        df_raw, device_id = proc.get_raw_data(log_file, passwords=pw)
-        df_phys = proc.extract_phys(df_raw)
-        #proc.print_log_summary(device_id, log_file, df_phys)
-        df_phys_all.append(df_phys)
+        proc = ProcessData(fs, db_list, signals=[])
 
-    df_phys_all = pd.concat(df_phys_all, ignore_index=False).sort_index()
+        df_phys_all = []
+        for log_file in new_files:
+            loop_end_time = time.time()  
+            loop_duration = loop_end_time - loop_start_time
+            print(f"Time taken for 1.75: {loop_duration} seconds")
 
-    df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
-    df_phys_join.to_csv("output_joined.csv")
-    print("\nConcatenated DBC decoded data:\n", df_phys_join)
-        
+            df_raw, device_id = proc.get_raw_data(log_file, passwords=pw) #1.4 / 2.73 seconds
+
+            loop_end_time = time.time()  
+            loop_duration = loop_end_time - loop_start_time  
+            print(f"Time taken for 1.8: {loop_duration} seconds")
+
+            df_phys = proc.extract_phys(df_raw) #0.8 / 2.73 seconds
+
+            loop_end_time = time.time()
+            loop_duration = loop_end_time - loop_start_time  
+            print(f"Time taken for 1.9: {loop_duration} seconds")
+            df_phys_all.append(df_phys)
+
+        df_phys_all = pd.concat(df_phys_all, ignore_index=False).sort_index()
+
+        df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
+        df_phys_join.to_csv("output_joined.csv")
+        # print("\nConcatenated DBC decoded data:\n", df_phys_join)
+
+        # Update the set of processed files
+        processed_files.update(new_files)
+    else:
+        print("No new log files found.")
+        # print("\nConcatenated DBC decoded data:\n", df_phys_join)
+
+    loop_end_time = time.time()  
+    loop_duration = loop_end_time - loop_start_time  
+    print(f"Time taken for whole thing: {loop_duration} seconds")
+
+    # Sleep for some time before the next iteration
     time.sleep(1)
-

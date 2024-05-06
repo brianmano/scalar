@@ -1,3 +1,7 @@
+import boto3
+import time
+import mdf_iter
+
 def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}):
     """Given a boolean specifying whether to use local disk or S3, setup filesystem
     Syntax examples: AWS (http://s3.us-east-2.amazonaws.com), MinIO (http://192.168.0.1:9000)
@@ -9,38 +13,11 @@ def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}
 
     if s3:
         import s3fs
-
         block_size = 55 * 1024 * 1024
-
-        if "amazonaws" in endpoint:
-            fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
-            print("yes")
-        elif cert != "":
-            fs = s3fs.S3FileSystem(
-                key=key,
-                secret=secret,
-                client_kwargs={"endpoint_url": endpoint, "verify": cert, "region_name": region},
-                default_block_size=block_size,
-            )
-        else:
-            fs = s3fs.S3FileSystem(
-                key=key,
-                secret=secret,
-                client_kwargs={"endpoint_url": endpoint, "region_name": region},
-                default_block_size=block_size,
-            )
-
-    else:
-        from pathlib import Path
-        import canedge_browser
-
-        base_path = Path(__file__).parent
-        fs = canedge_browser.LocalFileSystem(base_path=base_path, passwords=passwords)
+        fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
 
     return fs
 
-
-# -----------------------------------------------
 def load_dbc_files(dbc_paths):
     """Given a list of DBC file paths, create a list of conversion rule databases"""
     import can_decoder
@@ -49,31 +26,30 @@ def load_dbc_files(dbc_paths):
     db_list = []
     for dbc in dbc_paths:
         db = can_decoder.load_dbc(Path(__file__).parent / dbc)
-        #print(db)
         db_list.append(db)
 
     return db_list
 
+def list_mf4_files(key, secretkey, endpoint, region, bucket_name):
+    # Initialize the S3 client
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=key,
+        aws_secret_access_key=secretkey,
+        endpoint_url=endpoint,
+        region_name=region
+    )
 
-# -----------------------------------------------
-def list_log_files(fs, devices, start_times, verbose=True, passwords={}):
-    """Given a list of device paths, list log files from specified filesystem.
-    Data is loaded based on the list of start datetimes
-    """
-    import canedge_browser
+    # List all objects in the bucket
+    response = s3.list_objects_v2(Bucket=bucket_name)
 
-    log_files = []
+    # Extract the file names of all MF4 files
+    mf4_files = []
+    for obj in response.get('Contents', []):
+        if obj['Key'].endswith('.MF4'):
+            mf4_files.append(bucket_name + '/' + obj['Key'])
 
-    if len(start_times):
-        for idx, device in enumerate(devices):
-            start = start_times[idx]
-            log_files_device = canedge_browser.get_log_files(fs, [device], start_date=start, passwords=passwords)
-            log_files.extend(log_files_device)
-
-    if verbose:
-        print(f"Found {len(log_files)} log files\n")
-
-    return log_files
+    return mf4_files
 
 def add_signal_prefix(df_phys, can_id_prefix=False, pgn_prefix=False, bus_prefix=False):
     """Rename Signal names by prefixing the full
@@ -111,7 +87,6 @@ def restructure_data(df_phys, res, ffill=False):
         
     return df_phys
 
-
 def test_signal_threshold(df_phys, signal, threshold):
     """Illustrative example for how to extract a signal and evaluate statistical values
     vs. defined thresholds. The function can be easily modified for your needs.
@@ -123,7 +98,6 @@ def test_signal_threshold(df_phys, signal, threshold):
 
     if delta > threshold:
         print(f"{signal} exhibits a 'max - min' delta of {delta} exceeding threshold of {threshold}")
-
 
 def add_custom_sig(df_phys, signal1, signal2, function, new_signal):
     """Helper function for calculating a new signal based on two signals and a function.
@@ -226,13 +200,12 @@ class ProcessData:
         """Extract a df of raw data and device ID from log file.
         Optionally include LIN bus data by setting lin=True
         """
-        import mdf_iter
 
         with self.fs.open(log_file, "rb") as handle:
             mdf_file = mdf_iter.MdfFile(handle, passwords=passwords)
             device_id = self.get_device_id(mdf_file)
             #print(device_id, "test")
-
+            
             if lin:
                 df_raw_lin = mdf_file.get_data_frame_lin()
                 df_raw_lin["IDE"] = 0
