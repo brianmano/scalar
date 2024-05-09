@@ -1,21 +1,10 @@
 import boto3
 import time
 import mdf_iter
+import s3fs
 
-def setup_fs(s3, key="", secret="", endpoint="", region="",cert="", passwords={}):
-    """Given a boolean specifying whether to use local disk or S3, setup filesystem
-    Syntax examples: AWS (http://s3.us-east-2.amazonaws.com), MinIO (http://192.168.0.1:9000)
-    The cert input is relevant if you're using MinIO with TLS enabled, for specifying the path to the certficiate.
-    For MinIO you should also parse the region_name
-
-    The block_size is set to accomodate files up to 55 MB in size. If your log files are larger, adjust this value accordingly
-    """
-
-    if s3:
-        import s3fs
-        block_size = 55 * 1024 * 1024
-        fs = s3fs.S3FileSystem(key=key, secret=secret, default_block_size=block_size)
-
+def setup_fs(key="", secret="", endpoint="", region="",cert=""):
+    fs = s3fs.S3FileSystem(key=key, secret=secret)
     return fs
 
 def load_dbc_files(dbc_paths):
@@ -196,23 +185,29 @@ class ProcessData:
 
         return df_phys
 
-    def get_raw_data(self, log_file, passwords={},lin=False):
+    def get_raw_data(self, log_file):
         """Extract a df of raw data and device ID from log file.
         Optionally include LIN bus data by setting lin=True
         """
+        # loop_start_time = time.time()
 
         with self.fs.open(log_file, "rb") as handle:
-            mdf_file = mdf_iter.MdfFile(handle, passwords=passwords)
-            device_id = self.get_device_id(mdf_file)
-            #print(device_id, "test")
             
-            if lin:
-                df_raw_lin = mdf_file.get_data_frame_lin()
-                df_raw_lin["IDE"] = 0
-                df_raw_can = mdf_file.get_data_frame()
-                df_raw = df_raw_can.append(df_raw_lin)
-            else:
-                df_raw = mdf_file.get_data_frame()
+            # loop_end_time = time.time()  
+            # loop_duration = loop_end_time - loop_start_time
+            # print(f"Time taken1: {loop_duration} seconds")
+            mdf_file = mdf_iter.MdfFile(handle)
+            # loop_end_time = time.time()  
+            # loop_duration = loop_end_time - loop_start_time
+            # print(f"Time taken2: {loop_duration} seconds")
+            device_id = self.get_device_id(mdf_file)
+            # loop_end_time = time.time()  
+            # loop_duration = loop_end_time - loop_start_time
+            # print(f"Time taken3: {loop_duration} seconds")
+            df_raw = mdf_file.get_data_frame()
+            # loop_end_time = time.time()  
+            # loop_duration = loop_end_time - loop_start_time
+            # print(f"Time taken4: {loop_duration} seconds")
 
         return df_raw, device_id
 

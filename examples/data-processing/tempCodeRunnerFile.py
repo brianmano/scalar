@@ -1,1 +1,1 @@
-examples\data-processing\dbc_files\honda_civic_hatchback_ex_2017_can_generated.dbc
+db_list = load_dbc_files(dbc_paths)

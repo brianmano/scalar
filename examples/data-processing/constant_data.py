@@ -9,12 +9,12 @@ import time
 import botocore
 import boto3
 
-dbc_paths = ["dbc_files\honda_civic_hatchback_ex_2017_can_generated.dbc"]
+dbc_paths = ["dbc_files\can1-honda_civic_hatchback_ex_2017_can_generated.dbc"]
 
 eastern = timezone('US/Eastern')
 
-start = datetime(year=2020, month=1, day=1, hour=0, tzinfo=eastern)
-stop = datetime(year=2030, month=1, day=1, hour=0, tzinfo=eastern)
+start = datetime(year=2024, month=1, day=1, hour=0, tzinfo=eastern)
+stop = datetime(year=2024, month=6, day=1, hour=0, tzinfo=eastern)
 
 pw = {"default": "password"} #what is this
 
@@ -27,11 +27,15 @@ bucket_name = 'honda-civic-bucket'
 # Maintain a list of processed log files
 processed_files = set()
 
-
-
+loop_start_time = time.time()
 
 db_list = load_dbc_files(dbc_paths)
-fs = setup_fs(s3=True, key=key, secret=secretkey, endpoint=endpoint, region=region, passwords=pw)
+print(db_list)
+fs = setup_fs(key=key, secret=secretkey, endpoint=endpoint, region=region)
+
+loop_end_time = time.time()  
+loop_duration = loop_end_time - loop_start_time
+print(f"Time taken for initialization: {loop_duration} seconds")
 
 while True:
     loop_start_time = time.time()  # Record the start time of the loop
@@ -52,7 +56,7 @@ while True:
             loop_duration = loop_end_time - loop_start_time
             print(f"Time taken for 1.75: {loop_duration} seconds")
 
-            df_raw, device_id = proc.get_raw_data(log_file, passwords=pw) #1.4 / 2.73 seconds
+            df_raw, device_id = proc.get_raw_data(log_file) #1.4 / 2.73 seconds
 
             loop_end_time = time.time()  
             loop_duration = loop_end_time - loop_start_time  
@@ -81,5 +85,3 @@ while True:
     loop_duration = loop_end_time - loop_start_time  
     print(f"Time taken for whole thing: {loop_duration} seconds")
 
-    # Sleep for some time before the next iteration
-    time.sleep(1)
