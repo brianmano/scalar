@@ -1,14 +1,17 @@
 import mdf_iter
 import canedge_browser
 
+import time
 import pandas as pd
 from datetime import datetime, timezone
 from utils import setup_fs, load_dbc_files, restructure_data, add_custom_sig, ProcessData, test_signal_threshold
 
-# specify devices to process (from local/S3), DBC files, start time and optionally passwords
-devices = ["LOG/958D2219"]
+start_time = time.time()
 
-dbc_paths = ["dbc_files/CSS-Electronics-SAE-J1939-DEMO.dbc"]
+# specify devices to process (from local/S3), DBC files, start time and optionally passwords
+devices = ["LOG/12345"]
+
+dbc_paths = ["dbc_files\can1-honda_civic_hatchback_ex_2017_can_generated.dbc"]
 
 start = datetime(year=2020, month=1, day=1, hour=0, tzinfo=timezone.utc)
 stop = datetime(year=2030, month=1, day=1, hour=0, tzinfo=timezone.utc)
@@ -59,3 +62,5 @@ df_phys_all = pd.concat(df_phys_all,ignore_index=False).sort_index()
 df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
 df_phys_join.to_csv("output_joined.csv")
 print("\nConcatenated DBC decoded data:\n", df_phys_join)
+
+print("--- %s seconds ---" % (time.time() - start_time))
