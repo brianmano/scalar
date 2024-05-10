@@ -9,7 +9,7 @@ from utils import setup_fs, load_dbc_files, restructure_data, add_custom_sig, Pr
 start_time = time.time()
 
 # specify devices to process (from local/S3), DBC files, start time and optionally passwords
-devices = ["LOG/12345"]
+devices = ["LOG\958D2219"]
 
 dbc_paths = ["dbc_files\can1-honda_civic_hatchback_ex_2017_can_generated.dbc"]
 
@@ -41,26 +41,12 @@ for log_file in log_files:
     df_phys = proc.extract_phys(df_raw)
     proc.print_log_summary(device_id, log_file, df_phys)
 
-    # test_signal_threshold(df_phys=df_phys, signal="EngineSpeed", threshold=800)
-
     df_phys_all.append(df_phys)
 
 df_phys_all = pd.concat(df_phys_all,ignore_index=False).sort_index()
 
-# --------------------------------------------
-# example: Add a custom signal
-# def ratio(s1, s2):
-#     return s2 / s1 if s1 else np.nan
-
-# df_phys_all = add_custom_sig(df_phys_all, "WheelBasedVehicleSpeed", "EngineSpeed", ratio, "RatioRpmSpeed")
-
-# --------------------------------------------
-# example: resample and restructure data (parameters in columns)
-
-#grabs average of each second to put into .csv file (i calculated it to double check)
-#everything is correct except the time is off, think its just a time zone difference
 df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
 df_phys_join.to_csv("output_joined.csv")
-print("\nConcatenated DBC decoded data:\n", df_phys_join)
+# print("\nConcatenated DBC decoded data:\n", df_phys_join)
 
-print("--- %s seconds ---" % (time.time() - start_time))
+# print("--- %s seconds ---" % (time.time() - start_time))
