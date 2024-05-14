@@ -147,7 +147,7 @@ def add_custom_sig(df_phys, signal1, signal2, function, new_signal):
 
     return df_phys
 
-
+from multiprocessing import Pool
 # -----------------------------------------------
 class ProcessData:
     def __init__(self, fs, db_list, signals=[], days_offset=None, verbose=True):
@@ -178,8 +178,11 @@ class ProcessData:
         df_phys_temp = []
         for db in self.db_list:
             df_decoder = can_decoder.DataFrameDecoder(db)
+            # print(df_decoder)
 
             for bus, bus_group in df_raw.groupby("BusChannel"):  
+                # print(bus)
+                # print(bus_group)
                 for length, group in bus_group.groupby("DataLength"):
                     df_phys_group = df_decoder.decode_frame(group)
                     if not df_phys_group.empty:

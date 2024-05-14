@@ -22,13 +22,13 @@ pw = {"default": "password"}
 
 fs = setup_fs(s3=False, key="", secret="", endpoint="", region="", passwords=pw)
 db_list = load_dbc_files(dbc_paths)
-print(db_list)
+#print(db_list)
 #db list is the dbc (dictionary) values that you need to translate the log with
-print("ok")
+#print("ok")
 log_files = canedge_browser.get_log_files(fs, devices, start_date=start, stop_date=stop, passwords=pw)
 # log files are based on what device types you chose, log of that device (from a certain time period)
-print(log_files)
-print(f"Found a total of {len(log_files)} log files")
+#print(log_files)
+#print(f"Found a total of {len(log_files)} log files")
 
 # --------------------------------------------
 # perform data processing of each log file (e.g. evaluation of signal stats vs. thresholds)
@@ -39,7 +39,7 @@ df_phys_all = []
 for log_file in log_files:
     df_raw, device_id = proc.get_raw_data(log_file, passwords=pw)
     df_phys = proc.extract_phys(df_raw)
-    proc.print_log_summary(device_id, log_file, df_phys)
+    #proc.print_log_summary(device_id, log_file, df_phys)
 
     df_phys_all.append(df_phys)
 
@@ -49,4 +49,4 @@ df_phys_join = restructure_data(df_phys=df_phys_all, res="1S")
 df_phys_join.to_csv("output_joined.csv")
 # print("\nConcatenated DBC decoded data:\n", df_phys_join)
 
-# print("--- %s seconds ---" % (time.time() - start_time))
+print("--- %s seconds ---" % (time.time() - start_time))
