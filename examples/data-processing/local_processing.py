@@ -1,28 +1,22 @@
 import can
+import cantools
+
+# Load DBC file
+db = cantools.database.Database()
+db.add_dbc_file('examples\data-processing\dbc_files\can1-honda_civic_hatchback_ex_2017_can_generated.dbc')
 
 # Set up the PeakCAN interface
 can.rc['interface'] = 'pcan'
 can.rc['channel'] = 'PCAN_USBBUS1'
 can.rc['bitrate'] = 500000
 
-# Create a CAN bus instance
+# Create CAN bus instance
 bus = can.interface.Bus()
 
-# CSV file name
-csv_file = 'received_messages.csv'
-
-# Initialize CSVWriter
-with can.CSVWriter(csv_file, append=True) as writer:
-    # Define a message handler function
-    def handle_message(msg):
-        # Write the message to the CSV file
-        writer.on_message_received(msg)
-
-    # Add the message handler to the bus
-    notifier = can.Notifier(bus, [handle_message])
-
-    # Keep the script running to receive messages
+try:
     while True:
-        pass
-
-
+        message = bus.recv()  # Receive CAN message
+        decoded_message = db.decode_message(message.arbitration_id, message.data)
+        print(decoded_message)
+except KeyboardInterrupt:
+    bus.shutdown()

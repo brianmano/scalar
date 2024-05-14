@@ -27,7 +27,7 @@ db_list = load_dbc_files(dbc_paths)
 #print("ok")
 log_files = canedge_browser.get_log_files(fs, devices, start_date=start, stop_date=stop, passwords=pw)
 # log files are based on what device types you chose, log of that device (from a certain time period)
-#print(log_files)
+print(log_files)
 #print(f"Found a total of {len(log_files)} log files")
 
 # --------------------------------------------

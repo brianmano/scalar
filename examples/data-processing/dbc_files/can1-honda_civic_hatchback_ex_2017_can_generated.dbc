@@ -150,16 +150,6 @@ BO_ 1029 DOORS_STATUS: 8 BDY
  SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" EON
  SG_ CHECKSUM : 59|4@0+ (1,0) [0|15] "" EON
 
-CM_ SG_ 304 "Seems to be platform-agnostic";
-CM_ SG_ 316 "Should exist on Nidec";
-CM_ SG_ 420 BRAKE_HOLD_RELATED "On when Brake Hold engaged";
-CM_ SG_ 490 LONG_ACCEL "wheel speed derivative, noisy and zero snapping";
-CM_ SG_ 773 PASS_AIRBAG_ON "Might just be indicator light";
-CM_ SG_ 773 PASS_AIRBAG_OFF "Might just be indicator light";
-CM_ SG_ 780 CRUISE_SPEED "255 = no speed";
-CM_ SG_ 780 PCM_SPEED "Used by Nidec";
-CM_ SG_ 780 PCM_GAS "Used by Nidec";
-CM_ SG_ 804 CRUISE_SPEED_PCM "255 = no speed";
 
 VAL_ 780 CRUISE_SPEED 255 "no_speed" 252 "stopped";
 VAL_ 780 HUD_LEAD 3 "acc_off" 2 "solid_car" 1 "dashed_car" 0 "no_car";
@@ -167,7 +157,6 @@ VAL_ 884 DASHBOARD_ALERT 0 "none" 51 "acc_problem" 55 "cmbs_problem" 75 "key_not
 VAL_ 891 WIPERS 4 "High" 2 "Low" 0 "Off";
 
 
-CM_ "Imported file _bosch_2018.dbc starts here";
 BO_ 148 KINEMATICS: 8 XXX
  SG_ LAT_ACCEL : 7|10@0+ (-0.035,17.92) [-20|20] "m/s2" EON
  SG_ LONG_ACCEL : 25|10@0+ (-0.035,17.92) [-20|20] "m/s2" EON
@@ -383,26 +372,6 @@ BO_ 495 ACC_CONTROL_ON: 8 XXX
  SG_ CHECKSUM : 59|4@0+ (1,0) [0|15] "" XXX
  SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" XXX
 
-BO_ 829 LKAS_HUD: 5 ADAS
- SG_ CAM_TEMP_HIGH : 7|1@0+ (1,0) [0|255] "" BDY
- SG_ SET_ME_X41 : 6|7@0+ (1,0) [0|127] "" BDY
- SG_ BOH : 6|7@0+ (1,0) [0|127] "" BDY
- SG_ DASHED_LANES : 14|1@0+ (1,0) [0|1] "" BDY
- SG_ DTC : 13|1@0+ (1,0) [0|1] "" BDY
- SG_ LKAS_PROBLEM : 12|1@0+ (1,0) [0|1] "" BDY
- SG_ LKAS_OFF : 11|1@0+ (1,0) [0|1] "" BDY
- SG_ SOLID_LANES : 10|1@0+ (1,0) [0|1] "" BDY
- SG_ LDW_RIGHT : 9|1@0+ (1,0) [0|1] "" BDY
- SG_ STEERING_REQUIRED : 8|1@0+ (1,0) [0|1] "" BDY
- SG_ BOH_2 : 23|2@0+ (1,0) [0|4] "" BDY
- SG_ LDW_PROBLEM : 21|1@0+ (1,0) [0|1] "" BDY
- SG_ BEEP : 17|2@0+ (1,0) [0|1] "" BDY
- SG_ LDW_ON : 28|1@0+ (1,0) [0|1] "" BDY
- SG_ LDW_OFF : 27|1@0+ (1,0) [0|1] "" BDY
- SG_ CLEAN_WINDSHIELD : 26|1@0+ (1,0) [0|1] "" BDY
- SG_ SET_ME_X48 : 31|8@0+ (1,0) [0|255] "" BDY
- SG_ COUNTER : 37|2@0+ (1,0) [0|3] "" BDY
- SG_ CHECKSUM : 35|4@0+ (1,0) [0|15] "" BDY
 
 CM_ SG_ 479 CONTROL_ON "Set to 5 when car is being controlled";
 CM_ SG_ 479 AEB_STATUS "set for the duration of AEB event";
