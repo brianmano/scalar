@@ -27,7 +27,9 @@ db_list = load_dbc_files(dbc_paths)
 
 #log_files = canedge_browser.get_log_files(fs, devices, start_date=start, stop_date=stop, passwords=pw)
 
-log_files = ["/LOG/958D2219/00002501/00000001-663CD123.MF4"]
+#log_files = ["/LOG/958D2219/00002501/00000001-663CD123.MF4"]
+
+log_files = ["/test.MF4"]
 
 # log files are based on what device types you chose, log of that device (from a certain time period)
 print(log_files)
@@ -49,6 +51,6 @@ while True:
 
     df_phys_join = restructure_data(df_phys=df_phys_all, res="1s")
     df_phys_join.to_csv("output_joined.csv")
-    print("\nConcatenated DBC decoded data:\n", df_phys_join)
+    #print("\nConcatenated DBC decoded data:\n", df_phys_join)
 
     print("--- %s seconds ---" % (time.time() - start_time))
