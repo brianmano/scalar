@@ -373,15 +373,6 @@ BO_ 495 ACC_CONTROL_ON: 8 XXX
  SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" XXX
 
 
-CM_ SG_ 479 CONTROL_ON "Set to 5 when car is being controlled";
-CM_ SG_ 479 AEB_STATUS "set for the duration of AEB event";
-CM_ SG_ 479 AEB_BRAKING "set when braking is commanded during AEB event";
-CM_ SG_ 479 AEB_PREPARE "set 1s before AEB";
-CM_ SG_ 829 BEEP "beeps are pleasant, chimes are for warnngs etc...";
-
-VAL_ 829 BEEP 3 "single_beep" 2 "triple_beep" 1 "repeated_beep" 0 "no_beep";
-
-
 CM_ "Imported file _steering_sensors_a.dbc starts here";
 BO_ 330 STEERING_SENSORS: 8 EPS
  SG_ STEER_ANGLE : 7|16@0- (-0.1,0) [-500|500] "deg" EON

@@ -1,1 +1,3 @@
-can1-honda_civic_hatchback_ex_2017_can_generated
+can.rc['interface'] = 'pcan'
+# can.rc['channel'] = 'PCAN_USBBUS1'
+# can.rc['bitrate'] = 500000
